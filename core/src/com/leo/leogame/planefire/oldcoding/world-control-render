@@ -1,0 +1,246 @@
+    private static final String TAG = WorldController.class.getName();
+
+    public CameraHelper cameraHelper;
+    public World b2world;
+    DirectedGame game;
+    private boolean accelerometerAvailable;
+    public Array<Rock> rocks;
+    public Array<Carrot> carrots;
+    public EnemyPlane enemyPlane;
+    public Carrot carrot;
+    public Ball ball;
+
+
+    private void initPhysics() {
+        if (b2world != null)
+            b2world.dispose();
+        b2world = new World(new Vector2(0, -9.81f), true);
+        // Rocks
+        Vector2 origin = new Vector2();
+        for (Rock rock : rocks) {
+            BodyDef bodyDef = new BodyDef();
+            bodyDef.type = BodyType.KinematicBody;
+            bodyDef.position.set(rock.position);
+            Body body = b2world.createBody(bodyDef);
+            rock.body = body;
+            PolygonShape polygonShape = new PolygonShape();
+            origin.x = rock.bounds.width / 2.0f;
+            origin.y = rock.bounds.height / 2.0f;
+            polygonShape.setAsBox(rock.bounds.width / 2.0f,
+                    rock.bounds.height / 2.0f, origin, 0);
+            FixtureDef fixtureDef = new FixtureDef();
+            fixtureDef.shape = polygonShape;
+            body.createFixture(fixtureDef);
+            polygonShape.dispose();
+        }
+    }
+
+    public WorldController(DirectedGame game) {
+        this.game = game;
+        init();
+    }
+
+    public void init(){
+
+
+        accelerometerAvailable = Gdx.input
+                .isPeripheralAvailable(Peripheral.Accelerometer);
+        cameraHelper = new CameraHelper();
+
+
+        enemyPlane = new EnemyPlane();
+        rocks = new Array<Rock>();
+        carrots = new Array<Carrot>();
+
+        initRock();
+        initPhysics();
+        //onCollisionBunnyWithGoal();
+        initBall();
+
+    }
+
+
+    public void initBall(){
+        ball = new Ball();
+
+        //BodyDef bd = new BodyDef();
+        //bd.position.set(2, 2);
+        //Body groundBody = b2world.createBody(bd);
+        //EdgeShape edge = new EdgeShape();
+        //edge.set(new Vector2(0f, 0f), new Vector2(48f, 0f));
+        //FixtureDef boxShapeDef = new FixtureDef();
+        //boxShapeDef.shape = edge;
+        //groundBody.createFixture(boxShapeDef);
+
+        BodyDef ballBodyDef = new BodyDef();
+        ballBodyDef.type = BodyType.DynamicBody;
+        ballBodyDef.position.set(0f, 0f);
+        Body body = b2world.createBody(ballBodyDef);
+        body.setUserData("Ball");
+        CircleShape circle = new CircleShape();
+        circle.setRadius(ball.bounds.width/2f);
+        FixtureDef ballShapeDef = new FixtureDef();
+        ballShapeDef.shape = circle;
+        ballShapeDef.density = 5f;
+        ballShapeDef.friction = 0.5f;
+        ballShapeDef.restitution = 0.5f;
+
+        body.createFixture(ballShapeDef);
+
+        ball.body = body;
+
+
+    }
+
+    public void initRock(){
+        rocks = new Array<Rock>();
+        AbstractGameObject obj = null;
+
+        float heightIncreaseFactor = 0.25f;
+        float offsetHeight = -2.5f;
+        obj = new Rock();
+        obj.position.set(-2, 0 * obj.dimension.y
+                * heightIncreaseFactor + offsetHeight);
+        rocks.add((Rock) obj);
+
+        obj = new Rock();
+        obj.position.set(-1, 0 * obj.dimension.y
+                * heightIncreaseFactor + offsetHeight);
+        rocks.add((Rock) obj);
+
+        obj = new Rock();
+        obj.position.set(0, 0 * obj.dimension.y
+                * heightIncreaseFactor + offsetHeight);
+        rocks.add((Rock) obj);
+        rocks.get(rocks.size - 1).increaseLength(1);
+
+
+        //carrot = new Carrot();
+        //carrot.position.set(0,0);
+
+    }
+
+    private void onCollisionBunnyWithGoal() {
+        spawnCarrots(new Vector2(0,0), 100,
+                3.5f);
+    }
+
+
+    public void update(float deltaTime) {
+
+        for (Rock rock : rocks)
+            rock.update(deltaTime);
+        //for (Carrot carrot : carrots)
+        //    carrot.update(deltaTime);
+
+        ball.update(deltaTime);
+        b2world.step(deltaTime, 8, 3);
+    }
+
+    private void spawnCarrots(Vector2 pos, int numCarrots, float radius) {
+        float carrotShapeScale = 0.5f;
+        // create carrots with box2d body and fixture
+        for (int i = 0; i < numCarrots; i++) {
+            Carrot carrot = new Carrot();
+            // calculate random spawn position, rotation, and scale
+            float x = MathUtils.random(-radius, radius);
+            float y = MathUtils.random(5.0f, 15.0f);
+            float rotation = MathUtils.random(0.0f, 360.0f)
+                    * MathUtils.degreesToRadians;
+            float carrotScale = MathUtils.random(0.5f, 1.5f);
+            carrot.scale.set(carrotScale, carrotScale);
+            // create box2d body for carrot with start position
+            // and angle of rotation
+            BodyDef bodyDef = new BodyDef();
+            bodyDef.position.set(pos);
+            bodyDef.position.add(x, y);
+            bodyDef.angle = rotation;
+            Body body = b2world.createBody(bodyDef);
+            body.setType(BodyType.DynamicBody);
+            carrot.body = body;
+            // create rectangular shape for carrot to allow
+            // interactions (collisions) with other objects
+            PolygonShape polygonShape = new PolygonShape();
+            float halfWidth = carrot.bounds.width / 2.0f * carrotScale;
+            float halfHeight = carrot.bounds.height / 2.0f * carrotScale;
+            polygonShape.setAsBox(halfWidth * carrotShapeScale, halfHeight
+                    * carrotShapeScale);
+            // set physics attributes
+            FixtureDef fixtureDef = new FixtureDef();
+            fixtureDef.shape = polygonShape;
+            fixtureDef.density = 50;
+            fixtureDef.restitution = 0.5f;
+            fixtureDef.friction = 0.5f;
+            body.createFixture(fixtureDef);
+            polygonShape.dispose();
+            // finally, add new carrot to list for updating/rendering
+            carrots.add(carrot);
+        }
+    }
+
+
+
+worldrender
+
+        private WorldController worldController;
+        private OrthographicCamera camera;
+        private SpriteBatch batch;
+        private OrthographicCamera cameraGUI;
+        private Box2DDebugRenderer b2debugRenderer;
+        private static final boolean DEBUG_DRAW_BOX2D_WORLD = false;
+        public WorldRenderer(WorldController worldController) {
+            this.worldController = worldController;
+            init();
+        }
+
+        private void init() {
+            batch = new SpriteBatch();
+            camera = new OrthographicCamera(LeoData.VIEWPORT_WIDTH,
+                    LeoData.VIEWPORT_HEIGHT);
+            camera.position.set(0, 0, 0);
+            camera.update();
+
+            cameraGUI = new OrthographicCamera(LeoData.VIEWPORT_GUI_WIDTH,
+                    LeoData.VIEWPORT_GUI_HEIGHT);
+            cameraGUI.position.set(0, 0, 0);
+            cameraGUI.setToOrtho(true); // flip y-axis
+            cameraGUI.update();
+
+            b2debugRenderer = new Box2DDebugRenderer();
+
+        }
+
+        public void render() {
+            // renderTestObjects();
+            renderWorld(batch);
+            renderGui(batch);
+        }
+
+        private void renderWorld(SpriteBatch batch) {
+            worldController.cameraHelper.applyTo(camera);
+            batch.setProjectionMatrix(camera.combined);
+            batch.begin();
+            for (Rock rock : worldController.rocks)
+                rock.render(batch);
+
+            //for ( Carrot carrot : worldController.carrots)
+            //    carrot.render(batch);
+
+            worldController.ball.render(batch);
+            batch.end();
+
+            if (DEBUG_DRAW_BOX2D_WORLD) {
+                b2debugRenderer.render(worldController.b2world, camera.combined);
+            }
+        }
+
+        private void renderGui(SpriteBatch batch) {
+            batch.setProjectionMatrix(cameraGUI.combined);
+            batch.begin();
+            renderGuiScore(batch);
+            batch.end();
+        }
+
+        private void renderGuiScore(SpriteBatch batch) {
+            worldController.enemyPlane.render(batch);
+        }

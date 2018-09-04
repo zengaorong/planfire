@@ -1,0 +1,11 @@
+{
+  "name": "Rectangles",
+  "size": 3,
+  "rectangleDataArray" : [
+    { width:50,height: 50},
+    { position_x: 100,position_y:100,width:50,height: 50},
+    { width:75,height: 150}
+  ]
+
+
+}

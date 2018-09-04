@@ -1,0 +1,24 @@
+{
+"name": "Rectangles",
+"size": 1,
+"rectangleDataArray": [
+	{
+		"position_x": 273.3141,
+		"position_y": 399.965,
+		"width": 29.319544,
+		"height": 91.98095
+	},
+	{
+		"position_x": 304.3022,
+		"position_y": 442.26993,
+		"width": 27.830677,
+		"height": 48.494038
+	},
+	{
+		"position_x": 238.36848,
+		"position_y": 442.36536,
+		"width": 34.02871,
+		"height": 49.953255
+	}
+]
+}
