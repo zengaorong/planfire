@@ -15,6 +15,7 @@ import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
@@ -24,6 +25,7 @@ import com.badlogic.gdx.utils.ObjectMap;
 import com.leo.leogame.planefire.actor.PlayerPlane;
 import com.leo.leogame.planefire.assetmanage.Asset;
 import com.badlogic.gdx.Input.Keys;
+import com.leo.leogame.planefire.staticdata.LeoData;
 import com.leo.leogame.planefire.util.CameraHelper;
 import com.badlogic.gdx.utils.JsonWriter.OutputType;
 
@@ -34,10 +36,17 @@ public class OverlapsEdit extends ApplicationAdapter {
     ShapeRenderer editpicshape;
     PlayerPlane playerPlane;
     public CameraHelper cameraHelper;
-    public Array<RectangleActor> rectangleActors = new Array<RectangleActor>();
     public Stage stage;
-    public RectangleActor selected;
     public ImageButton exportbutton;
+    public String picname;
+    public Array<RectangleData> rectangleDataArray = new Array<RectangleData>();
+    public TextButton addbutton;
+    public Skin skin;
+
+    RectangleActor newRectangle;
+    public boolean iscreat = false;
+    public Array<RectangleActor> rectangleActors = new Array<RectangleActor>();
+    public RectangleActor selected;
 
 
 
@@ -49,16 +58,44 @@ public class OverlapsEdit extends ApplicationAdapter {
         camera = new OrthographicCamera(480,800);
         playerPlane = new PlayerPlane();
         cameraHelper = new CameraHelper();
-        editpic = Asset.instance.PlayerPlane.PlayerPlane;
+        editpic = Asset.instance.assetEnemyPlane.enemyplane;
+        picname = "enemyplane";
         stage = new Stage();
 
 
 
         Json json = new Json();
         json.setElementType(ArrayData.class, "rectangleDataArray", RectangleData.class);  // 指定Character中的item数据类型
-        ArrayData out = json.fromJson(ArrayData.class, Gdx.files.internal("testjson.json"));
-        //System.out.println(json.prettyPrint(json.toJson(out)));
-        Array<RectangleData> rectangleDataArray = out.rectangleDataArray;
+        if(Gdx.files.internal("overlaps/" + picname + ".json")==null){
+            rectangleDataArray = null;
+        }else{
+            ArrayData out = json.fromJson(ArrayData.class, Gdx.files.internal("overlaps/" + picname + ".json"));
+            rectangleDataArray = out.rectangleDataArray;
+        }
+
+        skin = new Skin(Gdx.files.internal(LeoData.SKIN_LIBGDX_UI));
+        addbutton = new TextButton("Button", skin);
+        addbutton.setPosition(0, Gdx.graphics.getHeight()-addbutton.getHeight());
+        addbutton.addListener(new ClickListener() {
+                @Override
+                public void clicked(InputEvent event, float x, float y) {
+                    System.out.println("hahahahha");
+                    newRectangle = new RectangleActor();
+                    newRectangle.setPosition(80,80);
+                    newRectangle.addListener(new ClickListener(){
+                        @Override
+                        public void clicked(InputEvent event, float x, float y) {
+                            System.out.println("new class created");
+                            RectangleActor temp = (RectangleActor) event.getListenerActor();
+                            selected  = temp;
+                            rectangleActors.add(temp);
+                        }
+                    });
+                    stage.addActor(newRectangle);
+                    iscreat = true;
+                }
+            });
+        stage.addActor(addbutton);
 
 
         exportbutton = new ImageButton(new TextureRegionDrawable(new TextureRegion(new Texture("button.png"))));
@@ -66,7 +103,7 @@ public class OverlapsEdit extends ApplicationAdapter {
         exportbutton.addListener(new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                FileHandle file = Gdx.files.local("testjson.json");
+                FileHandle file = Gdx.files.local("overlaps/" + picname + ".json");
                 Json json = new Json();
                 json.setOutputType(OutputType.json);
                 //file.writeString(Base64Coder.encodeString(json.prettyPrint(save)), false);
@@ -77,8 +114,8 @@ public class OverlapsEdit extends ApplicationAdapter {
                 //save.testdata.put("data2","你好");
                 for(RectangleActor rectangleActor:rectangleActors){
                     RectangleData fff = new RectangleData();
-                    fff.position_x = rectangleActor.getX();
-                    fff.position_y = rectangleActor.getY();
+                    fff.position_x = rectangleActor.getX() - Gdx.graphics.getWidth()/2;
+                    fff.position_y = rectangleActor.getY() - Gdx.graphics.getHeight()/2;
                     fff.width = rectangleActor.getWidth();
                     fff.height = rectangleActor.getHeight();
                     save.rectangleDataArray.add(fff);
@@ -92,7 +129,7 @@ public class OverlapsEdit extends ApplicationAdapter {
 
 
         for(RectangleData data : rectangleDataArray){
-            RectangleActor rectangleActor = new RectangleActor(data.position_x,data.position_y,data.width,data.height);
+            RectangleActor rectangleActor = new RectangleActor(data.position_x + Gdx.graphics.getWidth()/2,data.position_y + Gdx.graphics.getHeight()/2,data.width,data.height);
             rectangleActors.add(rectangleActor);
             rectangleActor.addListener(new ClickListener(){
                 @Override
@@ -124,17 +161,18 @@ public class OverlapsEdit extends ApplicationAdapter {
         batch.setProjectionMatrix(camera.combined);
 
         batch.begin();
-        batch.draw(reg.getTexture(), 0, 0, reg.getRegionWidth()/2, reg.getRegionHeight()/2, reg.getRegionWidth(), reg.getRegionHeight(),
+        batch.draw(reg.getTexture(), 0 - reg.getRegionWidth()/2 , 0 - reg.getRegionHeight()/2 , reg.getRegionWidth()/2, reg.getRegionHeight()/2, reg.getRegionWidth(), reg.getRegionHeight(),
                 1, 1, 0, reg.getRegionX(), reg.getRegionY(),
                 reg.getRegionWidth(), reg.getRegionHeight(), false, true);
         batch.end();
+
 
         stage.act();
         stage.draw();
 
         editpicshape.setProjectionMatrix(camera.combined);
         editpicshape.begin(ShapeRenderer.ShapeType.Line);
-        editpicshape.rect(0,0,reg.getRegionWidth()/2, reg.getRegionHeight()/2, reg.getRegionWidth(), reg.getRegionHeight(),1, 1, 0);
+        editpicshape.rect(0 - reg.getRegionWidth()/2 , 0 - reg.getRegionHeight()/2,reg.getRegionWidth()/2, reg.getRegionHeight()/2, reg.getRegionWidth(), reg.getRegionHeight(),1, 1, 0);
         editpicshape.end();
     }
 
@@ -219,16 +257,10 @@ public class OverlapsEdit extends ApplicationAdapter {
     }
 
     public static class RectangleData{
-        float position_x;
-        float position_y;
-        float width;
-        float height;
-        //public RectangleData(float position_x,float position_y,float width,float height){
-        //    this.position_x = position_x;
-        //    this.position_y = position_y;
-        //    this.width = width;
-        //    this.height = height;
-        //}
+        public float position_x;
+        public float position_y;
+        public float width;
+        public float height;
     }
 
     private static class Save {

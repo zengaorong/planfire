@@ -13,6 +13,8 @@ public class LeoData {
     public static final float VIEWPORT_HEIGHT = 5f;
     public static final float VIEWPORT_WIDTH = 5f;
 
+    public static final String SKIN_LIBGDX_UI = "images/uiskin.json";
+
 
 
 }

@@ -41,7 +41,7 @@ public abstract class DirectedGame implements ApplicationListener {
 		if (currScreen != null)
 			currScreen.pause();
 		nextScreen.pause();
-		Gdx.input.setInputProcessor(null); // disable input
+		//Gdx.input.setInputProcessor(null); // disable input
 		this.screenTransition = screenTransition;
 		t = 0;
 	}
@@ -67,7 +67,7 @@ public abstract class DirectedGame implements ApplicationListener {
 					currScreen.hide();
 				nextScreen.resume();
 				// enable input for next screen
-				Gdx.input.setInputProcessor(nextScreen.getInputProcessor());
+				//Gdx.input.setInputProcessor(nextScreen.getInputProcessor());
 				// switch screens
 				currScreen = nextScreen;
 				nextScreen = null;

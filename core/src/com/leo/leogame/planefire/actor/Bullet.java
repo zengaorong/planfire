@@ -5,12 +5,15 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.utils.Pool;
+import com.badlogic.gdx.utils.Pool.Poolable;
 import com.leo.leogame.planefire.assetmanage.Asset;
 
-public class Bullet extends AbstractGameObject {
+public class Bullet extends AbstractGameObject implements Poolable {
 
     public TextureRegion bullet;
     TextureRegion reg = null;
+    public boolean alive;
     public Bullet(){
         init();
     }
@@ -36,5 +39,11 @@ public class Bullet extends AbstractGameObject {
         shaperect.begin(ShapeRenderer.ShapeType.Line);
         shaperect.rect(position.x - origin.x, position.y - origin.y,reg.getRegionWidth(), reg.getRegionHeight());
         shaperect.end();
+    }
+
+    @Override
+    public void reset() {
+        position.set(0,0);
+        alive = false;
     }
 }

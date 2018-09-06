@@ -7,7 +7,10 @@ import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
+import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.utils.GdxRuntimeException;
+import com.leo.leogame.planefire.actor.Bullet;
 import com.leo.leogame.planefire.actor.Carrot;
 import com.leo.leogame.planefire.actor.Rock;
 import com.leo.leogame.planefire.assetmanage.Asset;
@@ -54,21 +57,26 @@ public class WorldRenderer {
         batch.begin();
         worldController.enemyPlane.render(batch);
         worldController.playerPlane.render(batch);
-        worldController.bullet.render(batch);
+        for(Bullet bullet:worldController.bullets){
+            bullet.render(batch);
+        }
         batch.end();
         worldController.playerPlane.render_rect(cameraGUI.combined);
-        worldController.bullet.render_rect(cameraGUI.combined);
+
+        worldController.stage.act();
+        worldController.stage.draw();
+        //worldController.bullet.render_rect(cameraGUI.combined);
         worldController.enemyPlane.render_rect(cameraGUI.combined);
     }
 
     private void renderGui(SpriteBatch batch) {
         batch.setProjectionMatrix(cameraGUI.combined);
         batch.begin();
-        renderGuiScore(batch);
+        //renderGuiScore(batch);
         batch.end();
     }
 
-    private void renderGuiScore(SpriteBatch batch) {
-        worldController.enemyPlane.render(batch);
-    }
+    //private void renderGuiScore(SpriteBatch batch) {
+    //    worldController.enemyPlane.render(batch);
+    //}
 }

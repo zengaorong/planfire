@@ -1,0 +1,42 @@
+{
+"name": "Rectangles",
+"size": 1,
+"rectangleDataArray": [
+	{
+		"position_x": -57.39186,
+		"position_y": -53.33313,
+		"width": 113.66298,
+		"height": 146.31013
+	},
+	{
+		"position_x": -67.355316,
+		"position_y": -125.042786,
+		"width": 12.67753,
+		"height": 110.02269
+	},
+	{
+		"position_x": 54.106567,
+		"position_y": -127.59006,
+		"width": 15.35844,
+		"height": 111.983086
+	},
+	{
+		"position_x": -70.09479,
+		"position_y": 69.219635,
+		"width": 12.677958,
+		"height": 13.317134
+	},
+	{
+		"position_x": -79.84654,
+		"position_y": 52.46817,
+		"width": 16.699114,
+		"height": 22.379549
+	},
+	{
+		"position_x": -69.94319,
+		"position_y": 45.91754,
+		"width": 11.298059,
+		"height": 9.697179
+	}
+]
+}

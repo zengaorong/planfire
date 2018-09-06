@@ -54,9 +54,11 @@ public class Asset implements Disposable{
     }
 
     public static class AssetEnemyPlane{
-        public AtlasRegion atlasRegion;
+        public AtlasRegion enemyplane;
+        public AtlasRegion enemybomb;
         public AssetEnemyPlane(TextureAtlas atlas){
-            atlasRegion = atlas.findRegion("enemy3_n1");
+            enemyplane = atlas.findRegion("enemy3_n1");
+            enemybomb = atlas.findRegion("enemy1_down3");
         }
     }
 
